@@ -1,0 +1,39 @@
+---
+
+- name: Check if Prometheus data volume exists
+  command: "docker volume inspect {{ prometheus_container_data_volume }}"
+  register: prometheus_volume_inspect_output
+  ignore_errors: yes
+  changed_when: false
+
+- name: If not, create it
+  command: "docker volume create --name {{ prometheus_container_data_volume }}"
+  when: prometheus_volume_inspect_output|failed
+
+- name: Create Prometheus container
+  docker_container:
+    name: "{{ prometheus_container_name }}"
+    image: "{{ prometheus_container_image }}"
+    command: -config.file=/prometheus-data/prometheus.yml -storage.local.path=/prometheus-data/data
+    #state: started
+    published_ports:
+      - "{{ prometheus_port }}:{{ prometheus_container_port }}"
+    volumes:
+      - "{{ prometheus_container_data_volume }}:/prometheus-data"
+    restart_policy: always
+  register: prometheus_container_result
+
+- name: Generate Prometheus configuration file
+  template:
+    src: prometheus.yml.j2
+    dest: /tmp/prometheus.yml
+  changed_when: false
+
+- name: Copy Prometheus configuration file
+  shell: "docker cp /tmp/prometheus.yml {{ prometheus_container_name }}:/prometheus-data/prometheus.yml"
+  notify: Restart Prometheus container
+
+- name: Trigger handlers immediately
+  meta: flush_handlers
+
+- include: ./../wait.yml

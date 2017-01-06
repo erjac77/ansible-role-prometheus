@@ -1,0 +1,7 @@
+---
+
+# Prometheus Docker container settings
+prometheus_container_name: prometheus
+prometheus_container_image: prom/prometheus
+prometheus_container_port: 9090
+prometheus_container_data_volume: prometheus-data

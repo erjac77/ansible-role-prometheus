@@ -1,0 +1,10 @@
+---
+
+- name: Wait for Prometheus to start up
+  uri:
+    url: "http://{{ prometheus_hostname }}:{{ prometheus_port }}/"
+    status_code: 200
+  register: prometheus_startup_resp
+  until: (prometheus_startup_resp is defined) and (prometheus_startup_resp.status == 200)
+  retries: "{{ prometheus_connection_retries }}"
+  delay: "{{ prometheus_connection_delay }}"

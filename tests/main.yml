@@ -1,0 +1,8 @@
+---
+
+- name: Install Prometheus on Docker
+  hosts: localhost
+  become: yes
+
+  roles:
+    - erjac77.prometheus

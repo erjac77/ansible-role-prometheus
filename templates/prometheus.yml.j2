@@ -1,0 +1,19 @@
+global:
+  scrape_interval: {{ prometheus_scrape_interval | default('15s') }}
+  scrape_timeout: {{ prometheus_scrape_timeout | default('10s') }}
+  evaluation_interval: {{ prometheus_evaluation_interval | default('30s') }}
+  {% if prometheus_external_labels is defined %}
+
+  external_labels:
+  {% for key in prometheus_external_labels %}
+    {{ key }}: {{ prometheus_external_labels[key] }}
+  {% endfor %}
+  {% endif %}
+{% if prometheus_rule_files is defined %}
+
+rule_files:
+  {{ prometheus_rule_files | to_nice_yaml(indent=2) }}
+{% endif %}
+
+scrape_configs:
+{{ prometheus_scrape_configs | to_nice_yaml(indent=2) }}

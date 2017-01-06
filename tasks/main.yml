@@ -1,0 +1,6 @@
+---
+
+- name: Gather platform specific variables
+  include_vars: "{{ prometheus_platform }}.yml"
+
+- include: "{{ prometheus_platform }}/setup.yml"
